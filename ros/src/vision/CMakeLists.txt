@@ -26,7 +26,7 @@ add_service_files(
 
 add_message_files(
   FILES
-  vector.msg
+  gate.msg
 )
 
 generate_messages(
@@ -59,6 +59,6 @@ include_directories(
 find_package(OpenCV 3 REQUIRED)
 
 # Separate nodes in the package
-add_executable(${PROJECT_NAME}_node src/vision_node.cpp src/CameraInput.cpp src/ObjectDetector.cpp src/Distance.cpp src/Filter.cpp)
+add_executable(${PROJECT_NAME}_node src/vision_node.cpp src/CameraInput.cpp src/GateDetector.cpp src/PathDetector.cpp)
 add_dependencies(${PROJECT_NAME}_node ${vision_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(${PROJECT_NAME}_node ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
