@@ -1,21 +1,15 @@
-#ifndef GATEDETECTOR
-#define GATEDETECTOR
+#ifndef GATEDETECTOR_
+#define GATEDETECTOR_
 
 #include "Detector.hpp"
+
+class CameraInput;
 
 class GateDetector : public Detector
 {
 public:
-    GateDetector(CameraInput& input, std::string cascade_name);
+    GateDetector(CameraInput& input);
     ~GateDetector();
-
-    bool update();
-
-private:
-    cv::Point findGateDivider(cv::Mat frame);
-    cv::Point avgPoint(std::vector<cv::Point2f> list);
-
-    CameraInput& camera_input;
 };
 
 #endif
