@@ -8,8 +8,8 @@
 #define LOW_VAL         100
 #define HIGH_VAL        255
 
-PathDetector::PathDetector(CameraInput& input)
-    :   camera_input(input)
+PathDetector::PathDetector(CameraInput& camera_input)
+    :   input(camera_input)
 {}
 
 PathDetector::~PathDetector()

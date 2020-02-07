@@ -2,7 +2,13 @@
 #include "CameraInput.hpp"
 
 Detector::Detector(CameraInput& camera_input)
-    :   input(camera_input)
+    :   input(camera_input),
+        x(0),
+        y(0),
+        z(0),
+        angle(0.0),
+        object_found(false),
+        accuracy(0)
 {}
 
 Detector::~Detector()

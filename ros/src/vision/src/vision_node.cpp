@@ -6,10 +6,9 @@
 #include "vision/change_detection.h"
 
 #include "EnableDetector.hpp"
-#include "CameraInput.hpp"
-#include "Detector.hpp"
 #include "GateDetector.hpp"
-#include "PathDetector.hpp"
+#include "CameraInput.hpp"
+// #include "PathDetector.hpp"
 
 // VisionSystem::EnabledDetector::NONE
 
@@ -20,13 +19,12 @@ private:
     ros::NodeHandle nh_;
     ros::Publisher pub_;
     ros::ServiceServer changeDetection_;
-    vision::gate gate_msg_;
+    vision::vector msg_;
 
     // Image capturing and detection systems.
     CameraInput camera_input;
-    Detector detector;
     GateDetector gate;
-    PathDetector path;
+    // PathDetector path;
 
     std::list<std::reference_wrapper<Detector>> detectors;
 
@@ -37,10 +35,9 @@ public:
     VisionSystem(ros::NodeHandle& nh)
         :   nh_(nh),
             camera_input(),
-            detector(camera_input),
             gate(camera_input),
-            path(camera_input),
-            detectors{gate, path}
+            // path(camera_input),
+            detectors{gate}
 
     {
         pub_ = nh.advertise<vision::vector>("/vision/vector", 1);

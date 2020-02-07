@@ -10,6 +10,9 @@ class GateDetector : public Detector
 public:
     GateDetector(CameraInput& input);
     ~GateDetector();
+
+private:
+    bool detectColor() override;
 };
 
 #endif

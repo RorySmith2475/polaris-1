@@ -8,8 +8,11 @@ class CameraInput;
 class PathDetector : public Detector
 {
 public:
-    PathDetector(CameraInput& input, std::string cascade_name);
+    PathDetector(CameraInput& camera_input);
     ~PathDetector();
+
+private:
+    CameraInput& input;
 };
 
 #endif
