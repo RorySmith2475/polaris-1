@@ -8,13 +8,13 @@ class CameraInput;
 class Detector
 {
 public:
-    Detector(CameraInput& camera_input);
-    ~Detector();
-
     virtual bool setup();
     virtual bool update();
 
 protected:
+    Detector(CameraInput& camera_input);
+    ~Detector();
+
     virtual bool detectColor();
     virtual bool detectCascade();
     virtual bool detectLine();

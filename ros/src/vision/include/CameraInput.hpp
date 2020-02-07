@@ -11,11 +11,11 @@ class CameraInput
 {
 public:
     CameraInput();
-    ~CameraInput() = default;
+    ~CameraInput();
 
     bool update();
 
-    const cv::Mat& getFrameFront();
+    cv::Mat getFrameFront();
 
 private:
     cv::Mat frame_front;
