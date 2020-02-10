@@ -1,13 +1,14 @@
 #include <ros/ros.h>
+#include <functional>
+#include <list>
 
 #include "vision/vector.h"
 #include "vision/change_detection.h"
 
 #include "EnableDetector.hpp"
+#include "GateDetector.hpp"
 #include "CameraInput.hpp"
-#include "ObjectDetector.hpp"
-//#include "GateDetector.hpp"
-//#include "PathDetector.hpp"
+// #include "PathDetector.hpp"
 
 // VisionSystem::EnabledDetector::NONE
 
@@ -16,24 +17,34 @@ class VisionSystem
 private:
     // Ros fun stuff
     ros::NodeHandle nh_;
-
     ros::Publisher pub_;
     ros::ServiceServer changeDetection_;
-
     vision::vector msg_;
 
     // Image capturing and detection systems.
-    CameraInput cameraInput_;
-    //GateDetector gateDetector_;
-    ObjectDetector objectDetector_;
-    //PathDetector pathDetector_;
+    CameraInput camera_input;
+    GateDetector gate;
+    // PathDetector path;
+
+    std::list<std::reference_wrapper<Detector>> detectors;
 
     // Detectors that are Enabled
     EnabledDetector enabledDetectors_;
 
 public:
+    VisionSystem(ros::NodeHandle& nh)
+        :   nh_(nh),
+            camera_input(),
+            gate(camera_input),
+            // path(camera_input),
+            detectors{gate}
 
-	/*!
+    {
+        pub_ = nh.advertise<vision::vector>("/vision/vector", 1);
+        changeDetection_ = nh.advertiseService("/vision/change_detection", &VisionSystem::changeDetectionCallback, this);
+    }
+
+	/**
 	 * This is the service for changing the detection type of the detection system.
 	 * @param request the requested detection type.
 	 * @param response unused/empty.
@@ -45,55 +56,25 @@ public:
 		return true;
 	}
 
-    VisionSystem(ros::NodeHandle& nh) :
-        nh_(nh),
-        cameraInput_(),
-        /* Ensure fully-qualified path is used for files */
-        //gateDetector_(cameraInput_, "../cascades/GateCascade.xml"),
-        objectDetector_(cameraInput_, "Jiangshi"),
-        //pathDetector_(cameraInput_, ""),
-        enabledDetectors_(EnabledDetector::NONE)
+    int setup()
     {
-        pub_ = nh.advertise<vision::vector>("/vision/vector", 1);
-        changeDetection_ = nh.advertiseService("/vision/change_detection", &VisionSystem::changeDetectionCallback, this);
+
     }
 
     /* THIS IS THE MAIN LOOP OF THE VISION SYSTEM */
-    int operator()()
+    int loop()
     {
-        int status = 0;
+        int status = 1;
 
         ros::Rate r(10); // Maybe Faster
-        while(ros::ok() && !status)
+        while(ros::ok() && status)
         {
-            if(cameraInput_.update())
+            if(camera_input.update())
             {
-                switch (enabledDetectors_)
-                {
-                //case EnabledDetector::GATE:
-                //    gateDetector_.update();
-                //    msg_.x = gateDetector_.getXFront();
-                //    msg_.y = gateDetector_.getYFront();
-                //    msg_.z = gateDetector_.getZFront();
-                //    break;
-                case EnabledDetector::OBJECT:
-                    objectDetector_.update();
-                    msg_.x = objectDetector_.getXFront();
-                    msg_.y = objectDetector_.getYFront();
-                    msg_.z = objectDetector_.getZFront();
-                    break;
-                //case EnabledDetector::PATH:
-                //    pathDetector_.update();
-                //    msg_.x = pathDetector_.getXFront();
-                //    msg_.y = pathDetector_.getYFront();
-                //    msg_.z = pathDetector_.getZFront();
-                //    break;
-                default:
-                    msg_.x = 0;
-                    msg_.y = 0;
-                    msg_.z = 0;
-                    break;
-                }
+               for(Detector& d : detectors)
+               {
+                   d.update();
+               }
             }
 
             pub_.publish(msg_);
@@ -112,7 +93,8 @@ int main(int argc, char **argv)
 
     VisionSystem visionSystem(nh);
 
-    int status = visionSystem();
+    int status = visionSystem.setup();
+    if(status) status = visionSystem.loop();
 
     ros::shutdown();
     return status;
