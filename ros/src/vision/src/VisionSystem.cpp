@@ -31,8 +31,11 @@ private:
     PathDetector path;
 
     // Collection of detectors together with their state (enabled to detect or not)
-    std::map<Detector,DetectorState> detectors;
+    std::map<Detector*,DetectorState> detectors;
 
+    // Message data to be published by ROS messages
+    vision::vector_array publishMessageArray;
+    vision::vector       publishMessageVector;
 
 public:
     VisionSystem(ros::NodeHandle& nh)
@@ -56,8 +59,7 @@ public:
 	bool setDetectionCallback(vision::set_detection::Request& request, vision::set_detection::Response& response)
 	{
         DetectorType detectorType = static_cast<DetectorType>(request.detectorType);
-        int enabled = request.enabled;
-
+        DetectorState detectorState = static_cast<DetectorState>(request.detectorState);
 
 		return true;
 	}
@@ -69,10 +71,8 @@ public:
      */
     int setup()
     {
-        //detectors[gate] = DetectorState.DISABLED;
-        //detectors[path] = DetectorState.DISABLED;
-
-        detectors.insert(std::make_pair(gate, DETECTOR_DISABLED));
+        detectors.insert(std::make_pair(&gate, DETECTOR_DISABLED));
+        detectors.insert(std::make_pair(&path, DETECTOR_DISABLED));
 
         pub_ = nh_.advertise<vision::vector_array>("/vision/vector_array", 1);
         setDetection_ = nh_.advertiseService("/vision/set_detection", &VisionSystem::setDetectionCallback, this);
@@ -88,19 +88,19 @@ public:
         ros::Rate r(POLLING_RATE_HZ);
         while(ros::ok() && status)
         {
+            publishMessageArray.result.clear();
+
             if(camera_input.update())
             {
-                // gate.update();
-                // for(Detector& d : detectors)
-                // {
-                //     d.update();
+                for (std::map<Detector*,DetectorState>::iterator iter = detectors.begin(); iter != detectors.end(); ++iter)
+                {
+                    Detector* k = iter->first;
+                    k->update();
 
-                //     // msg_ = d.getX();
-                //     // msg_ = d.getAngle();
+                    // TODO: Populate messages with result
+                }
 
-                //     // msg_.name = d.getName();
-                //     pub_.publish(msg_);
-                // }
+                pub_.publish(publishMessageArray);
             }
 
             ros::spinOnce();
