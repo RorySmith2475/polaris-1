@@ -5,6 +5,8 @@
 #define GATE_WIDTH      120
 #define GATE_HEIGHT     60
 
+#define GATE
+
 GateDetector::GateDetector(CameraInput& camera_input)
     :   Detector(camera_input)
 {}

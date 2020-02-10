@@ -6,7 +6,6 @@
 #include "opencv2/highgui.hpp"
 #include "opencv2/imgproc.hpp"
 
-
 class CameraInput
 {
 public:
@@ -15,7 +14,7 @@ public:
 
     bool update();
 
-    cv::Mat getFrameFront();
+    const cv::Mat& getFrameFront();
 
 private:
     cv::Mat frame_front;

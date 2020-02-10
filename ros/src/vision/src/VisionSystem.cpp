@@ -2,6 +2,7 @@
 #include <functional>
 #include <list>
 #include <map>
+#include <vector>
 
 #include "vision/vector.h"
 #include "vision/vector_array.h"
@@ -11,7 +12,7 @@
 #include "GateDetector.hpp"
 #include "CameraInput.hpp"
 #include "DetectorState.hpp"
-// #include "PathDetector.hpp"
+#include "PathDetector.hpp"
 
 #define POLLING_RATE_HZ 10
 
@@ -31,11 +32,14 @@ private:
     // Collection of detectors together with their state (enabled to detect or not)
     std::map<std::reference_wrapper<Detector>,DetectorState> detectors;
 
+
 public:
     VisionSystem(ros::NodeHandle& nh)
         :   nh_(nh),
             camera_input(),
-            gate(camera_input)
+            gate(camera_input),
+            path(camera_input),
+            detectors{gate, path}
 
     {
         
@@ -65,6 +69,8 @@ public:
         pub_ = nh.advertise<vision::vector>("/vision/vector_array", 1);
 
         setDetection_ = nh.advertiseService("/vision/set_detection", &VisionSystem::setDetectionCallback, this);
+
+        gate.setup();
     }
 
     /**
@@ -79,13 +85,19 @@ public:
         {
             if(camera_input.update())
             {
-               for(Detector& d : detectors)
-               {
-                   d.update();
-               }
+                gate.update();
+                // for(Detector& d : detectors)
+                // {
+                //     d.update();
+
+                //     // msg_ = d.getX();
+                //     // msg_ = d.getAngle();
+
+                //     // msg_.name = d.getName();
+                //     pub_.publish(msg_);
+                // }
             }
 
-            pub_.publish(msg_);
             ros::spinOnce();
             r.sleep();
         }
@@ -104,6 +116,7 @@ int main(int argc, char **argv)
     int status = visionSystem.setup();
     if(status) status = visionSystem.loop();
 
+    ROS_INFO("Shutting Down...");
     ros::shutdown();
     return status;
 }
