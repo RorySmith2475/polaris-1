@@ -1,47 +1,46 @@
 #include <ros/ros.h>
 #include <functional>
 #include <list>
+#include <map>
 
 #include "vision/vector.h"
-#include "vision/change_detection.h"
+#include "vision/vector_array.h"
+#include "vision/set_detection.h"
 
 #include "EnableDetector.hpp"
 #include "GateDetector.hpp"
 #include "CameraInput.hpp"
+#include "DetectorState.hpp"
 // #include "PathDetector.hpp"
 
-// VisionSystem::EnabledDetector::NONE
+#define POLLING_RATE_HZ 10
 
 class VisionSystem
 {
 private:
-    // Ros fun stuff
+    // ROS Framework required to instantiate the node and provide service and publishing interfaces
     ros::NodeHandle nh_;
     ros::Publisher pub_;
-    ros::ServiceServer changeDetection_;
-    vision::vector msg_;
+    ros::ServiceServer setDetection_;
+    vision::vector_array msg_;
 
     // Image capturing and detection systems.
     CameraInput camera_input;
     GateDetector gate;
-    // PathDetector path;
 
-    std::list<std::reference_wrapper<Detector>> detectors;
-
-    // Detectors that are Enabled
-    EnabledDetector enabledDetectors_;
+    // Collection of detectors together with their state (enabled to detect or not)
+    std::map<std::reference_wrapper<Detector>,DetectorState> detectors;
 
 public:
     VisionSystem(ros::NodeHandle& nh)
         :   nh_(nh),
             camera_input(),
-            gate(camera_input),
-            // path(camera_input),
-            detectors{gate}
+            gate(camera_input)
 
     {
-        pub_ = nh.advertise<vision::vector>("/vision/vector", 1);
-        changeDetection_ = nh.advertiseService("/vision/change_detection", &VisionSystem::changeDetectionCallback, this);
+        
+    
+        detectors[gate] = DetectorState.ENABLED;
     }
 
 	/**
@@ -50,23 +49,32 @@ public:
 	 * @param response unused/empty.
 	 * @return true if success or false if failure.
 	 */
-	bool changeDetectionCallback(vision::change_detection::Request& request, vision::change_detection::Response& response)
+	bool setDetectionCallback(vision::set_detection::Request& request, vision::set_detection::Response& response)
 	{
 		enabledDetectors_ = static_cast<EnabledDetector>(request.enabled_type);
 		return true;
 	}
 
+    /**
+     * Configures the Vision node to such a state that it is ready to detect objects, handle service
+     * requests, and publish data
+     * 
+     */
     int setup()
     {
+        pub_ = nh.advertise<vision::vector>("/vision/vector_array", 1);
 
+        setDetection_ = nh.advertiseService("/vision/set_detection", &VisionSystem::setDetectionCallback, this);
     }
 
-    /* THIS IS THE MAIN LOOP OF THE VISION SYSTEM */
+    /**
+     * The main loop of the Vision node.
+     */
     int loop()
     {
         int status = 1;
 
-        ros::Rate r(10); // Maybe Faster
+        ros::Rate r(POLLING_RATE_HZ);
         while(ros::ok() && status)
         {
             if(camera_input.update())

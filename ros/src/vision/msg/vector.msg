@@ -1,3 +1,5 @@
+string      id                  # The ID of the detected object
+uint8       type                # Category: 0=Gate, 1=Path
 uint16      x                   # cm
 uint16      y                   # cm
 uint16      z                   # cm
