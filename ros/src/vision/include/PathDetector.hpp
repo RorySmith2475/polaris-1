@@ -10,7 +10,6 @@ class PathDetector : public Detector
 public:
     PathDetector(CameraInput& camera_input);
     ~PathDetector();
-
 };
 
 #endif

@@ -2,16 +2,16 @@
 #include <functional>
 #include <list>
 #include <map>
-#include <vector>
 
 #include "vision/vector.h"
 #include "vision/vector_array.h"
 #include "vision/set_detection.h"
 
-#include "EnableDetector.hpp"
 #include "GateDetector.hpp"
 #include "CameraInput.hpp"
+#include "Detector.hpp"
 #include "DetectorState.hpp"
+#include "DetectorType.hpp"
 #include "PathDetector.hpp"
 
 #define POLLING_RATE_HZ 10
@@ -28,9 +28,10 @@ private:
     // Image capturing and detection systems.
     CameraInput camera_input;
     GateDetector gate;
+    PathDetector path;
 
     // Collection of detectors together with their state (enabled to detect or not)
-    std::map<std::reference_wrapper<Detector>,DetectorState> detectors;
+    std::map<Detector,DetectorState> detectors;
 
 
 public:
@@ -38,13 +39,12 @@ public:
         :   nh_(nh),
             camera_input(),
             gate(camera_input),
-            path(camera_input),
-            detectors{gate, path}
-
+            path(camera_input)
     {
-        
+        //pub_ = nh.advertise<vision::vector_array>("/vision/vector_array", 1);
+
+        //setDetection_ = nh.advertiseService("/vision/set_detection", &VisionSystem::setDetectionCallback, this);        
     
-        detectors[gate] = DetectorState.ENABLED;
     }
 
 	/**
@@ -55,7 +55,10 @@ public:
 	 */
 	bool setDetectionCallback(vision::set_detection::Request& request, vision::set_detection::Response& response)
 	{
-		enabledDetectors_ = static_cast<EnabledDetector>(request.enabled_type);
+        DetectorType detectorType = static_cast<DetectorType>(request.detectorType);
+        int enabled = request.enabled;
+
+
 		return true;
 	}
 
@@ -66,11 +69,13 @@ public:
      */
     int setup()
     {
-        pub_ = nh.advertise<vision::vector>("/vision/vector_array", 1);
+        //detectors[gate] = DetectorState.DISABLED;
+        //detectors[path] = DetectorState.DISABLED;
 
-        setDetection_ = nh.advertiseService("/vision/set_detection", &VisionSystem::setDetectionCallback, this);
+        detectors.insert(std::make_pair(gate, DETECTOR_DISABLED));
 
-        gate.setup();
+        pub_ = nh_.advertise<vision::vector_array>("/vision/vector_array", 1);
+        setDetection_ = nh_.advertiseService("/vision/set_detection", &VisionSystem::setDetectionCallback, this);
     }
 
     /**
@@ -85,7 +90,7 @@ public:
         {
             if(camera_input.update())
             {
-                gate.update();
+                // gate.update();
                 // for(Detector& d : detectors)
                 // {
                 //     d.update();

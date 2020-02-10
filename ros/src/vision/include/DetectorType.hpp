@@ -1,9 +1,9 @@
 #ifndef DETECTORTYPES
 #define DETECTORTYPES 
 
-enum Detector {
+enum DetectorType {
     PATH = 0,
     GATE = 1
-}
+};
 
 #endif

@@ -2,8 +2,8 @@
 #define DETECTORSTATE
 
 enum DetectorState {
-    DISABLED = 0,
-    ENABLED = 1
-}
+    DETECTOR_DISABLED = 0,
+    DETECTOR_ENABLED = 1
+} detectorState;
 
 #endif
