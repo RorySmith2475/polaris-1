@@ -11,8 +11,6 @@ public:
     PathDetector(CameraInput& camera_input);
     ~PathDetector();
 
-private:
-    CameraInput& input;
 };
 
 #endif

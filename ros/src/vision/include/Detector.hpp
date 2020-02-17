@@ -12,6 +12,15 @@ public:
     virtual bool update();
 
 protected:
+    // struct DetectionData {
+    //     uint16_t x;             // cm
+    //     uint16_t y;             // cm
+    //     uint16_t z;             // cm
+    //     float angle;            // degrees (radian?)
+    //     bool object_found;      // {0,1}
+    //     uint8_t accuracy;       // 0 -> 100
+    // };
+
     Detector(CameraInput& camera_input);
     ~Detector();
 

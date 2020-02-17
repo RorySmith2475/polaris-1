@@ -1,6 +1,6 @@
 #include <ros/ros.h>
 #include <functional>
-#include <list>
+#include <vector>
 
 #include "vision/vector.h"
 #include "vision/change_detection.h"
@@ -8,7 +8,7 @@
 #include "EnableDetector.hpp"
 #include "GateDetector.hpp"
 #include "CameraInput.hpp"
-// #include "PathDetector.hpp"
+#include "PathDetector.hpp"
 
 // VisionSystem::EnabledDetector::NONE
 
@@ -24,9 +24,9 @@ private:
     // Image capturing and detection systems.
     CameraInput camera_input;
     GateDetector gate;
-    // PathDetector path;
+    PathDetector path;
 
-    std::list<std::reference_wrapper<Detector>> detectors;
+    std::vector<std::reference_wrapper<Detector>> detectors;
 
     // Detectors that are Enabled
     EnabledDetector enabledDetectors_;
@@ -36,8 +36,8 @@ public:
         :   nh_(nh),
             camera_input(),
             gate(camera_input),
-            // path(camera_input),
-            detectors{gate}
+            path(camera_input),
+            detectors{gate, path}
 
     {
         pub_ = nh.advertise<vision::vector>("/vision/vector", 1);
@@ -58,7 +58,7 @@ public:
 
     int setup()
     {
-
+        gate.setup();
     }
 
     /* THIS IS THE MAIN LOOP OF THE VISION SYSTEM */
@@ -71,13 +71,17 @@ public:
         {
             if(camera_input.update())
             {
-               for(Detector& d : detectors)
-               {
-                   d.update();
-               }
+                for(Detector& d : detectors)
+                {
+                    d.update();
+                    // msg_ = d.getX();
+                    // msg_ = d.getAngle();
+
+                    // msg_.name = d.getName();
+                    pub_.publish(msg_);
+                }
             }
 
-            pub_.publish(msg_);
             ros::spinOnce();
             r.sleep();
         }
