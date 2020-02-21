@@ -1,15 +1,8 @@
 #include "Distance.hpp"
 
-uint32_t Distance::getDistanceZ(cv::Rect object, float realWidth, uint8_t camera)
+uint32_t Distance::getDistanceZ(cv::Rect object, float realWidth)
 {   
-    double focal = 0;
-    if (camera == 0){
-        focal = TOP_FOCAL;
-    } else if(camera == 1){
-        focal = FRONT_FOCAL;
-    } else {
-        focal = BOTTOM_FOCAL;
-    }
+    double focal = FRONT_FOCAL;
     
     /* Bounds checking to ensure no undefined values */
     uint32_t z_distance;
