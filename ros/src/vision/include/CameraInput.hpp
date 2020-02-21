@@ -14,7 +14,7 @@ public:
 
     bool update();
 
-    cv::Mat getFrameFront();
+    const cv::Mat& getFrameFront();
 
 private:
     cv::Mat frame_front;

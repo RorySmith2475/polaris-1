@@ -22,4 +22,4 @@ bool CameraInput::update()
     return true;
 }
 
-cv::Mat CameraInput::getFrameFront() { return frame_front; }
+const cv::Mat& CameraInput::getFrameFront() { return frame_front; }

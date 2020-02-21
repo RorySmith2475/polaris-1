@@ -22,6 +22,8 @@ if [ ! "$( docker container ls -a | grep polaris_interactive)" ]; then
 	    --name polaris_interactive \
 		--mount src="$(pwd)"/..,target=/var/polaris,type=bind \
 	    --device=${VIDEO_DEVICE}:/dev/video0 \
+		-e DISPLAY=$DISPLAY \
+        -v /tmp/.X11-unix:/tmp/.X11-unix \
 		auvic/polaris:polaris_shell
 else
 	printf "${YEL}Docker container ${GRN}found${YEL}.${NC}\n"

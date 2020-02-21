@@ -71,15 +71,17 @@ public:
         {
             if(camera_input.update())
             {
-                for(Detector& d : detectors)
-                {
-                    d.update();
-                    // msg_ = d.getX();
-                    // msg_ = d.getAngle();
+                gate.update();
+                // for(Detector& d : detectors)
+                // {
+                //     d.update();
 
-                    // msg_.name = d.getName();
-                    pub_.publish(msg_);
-                }
+                //     // msg_ = d.getX();
+                //     // msg_ = d.getAngle();
+
+                //     // msg_.name = d.getName();
+                //     pub_.publish(msg_);
+                // }
             }
 
             ros::spinOnce();
@@ -100,6 +102,7 @@ int main(int argc, char **argv)
     int status = visionSystem.setup();
     if(status) status = visionSystem.loop();
 
+    ROS_INFO("Shutting Down...");
     ros::shutdown();
     return status;
 }
