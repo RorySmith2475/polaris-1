@@ -27,13 +27,14 @@ protected:
     cv::Mat image_descriptors;
     cv::Mat match_image;
     const uint16_t MIN_HESSIAN = 400;
-    const float RATIO_THRESH = 0.5; // Lower is more accurate
+    const float RATIO_THRESH = 0.8; // Lower is more accurate
     const uint8_t MIN_MATCH_THRESH = 20;
     
     virtual bool detectCascade();
     
     
     virtual bool detectLine();
+    
 
     CameraInput& input;
     uint16_t x;
