@@ -1,0 +1,3 @@
+uint8       detectorType        # The type of detector
+uint8       detectorState       # 0 = disabled, 1 = enabled
+---
